@@ -1,4 +1,5 @@
 # HorizontalScrollCell
-Horizontal Scrollable Cell for ios
+Horizontal Scrollable UICollectionView Cell for ios.
+
 
 
