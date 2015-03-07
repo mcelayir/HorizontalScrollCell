@@ -13,12 +13,14 @@
 -(void)cellSelected;
 @end
 
-@interface HorizontalScrollCell : UICollectionViewCell
+@interface HorizontalScrollCell : UICollectionViewCell <UIScrollViewDelegate>
 {
     CGFloat supW;
     CGFloat off;
     CGFloat diff;
 }
+
+
 @property (strong, nonatomic) IBOutlet UIScrollView *scroll;
 
 @property (strong, nonatomic) IBOutlet UILabel *title;

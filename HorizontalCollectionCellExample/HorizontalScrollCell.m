@@ -16,53 +16,6 @@
  
 }
 
-//-(void)willMoveToSuperview:(UIView *)newSuperview
-//{
-//    supW = newSuperview.frame.size.width;
-//    NSLog(@"%.2f",supW);
-//    
-//    diff = self.frame.size.width;
-//    NSLog(@"%.2f",diff);
-//    
-//    off = (supW - diff);
-//    
-//    //[self.scroll setFrame:CGRectMake(self.scroll.frame.origin.x, self.scroll.frame.origin.y, self.frame.size.width + off, 164)];
-//    
-//}
-
-//-(void)didMoveToSuperview
-//{
-//    
-//    
-//    NSLog(@"%.2f", self.scroll.frame.size.width);
-//    
-//    [super didMoveToSuperview];
-//    
-//    //[self.scroll setFrame:CGRectMake(self.scroll.frame.origin.x, self.scroll.frame.origin.y, self.frame.size.width, 164)];
-//}
-
-//-(void)layoutIfNeeded
-//{
-//    [super layoutIfNeeded];
-//    
-//    diff = self.frame.size.width;
-//    NSLog(@"%.2f",diff);
-//    
-//    off = (supW - diff);
-//    
-//    [self layoutSubviews];
-//}
-
-
--(void)layoutSubviews
-{
-    NSLog(@"%.2f", self.scroll.frame.size.width);
-    
-    //[self.scroll setFrame:CGRectMake(self.scroll.frame.origin.x, self.scroll.frame.origin.y, self.frame.size.width + off, 164)];
-    
-    NSLog(@"%.2f", self.scroll.frame.size.width);
-}
-
 -(void)setUpCellWithArray:(NSArray *)array
 {
     CGFloat xbase = 10;
@@ -83,6 +36,8 @@
     }
     
     [self.scroll setContentSize:CGSizeMake(xbase, self.scroll.frame.size.height)];
+    
+    self.scroll.delegate = self;
 }
 
 -(UIView *)createCustomViewWithImage:(UIImage *)image
@@ -102,7 +57,85 @@
     return custom;
 }
 
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 
+{
+    [self containingScrollViewDidEndDragging:scrollView];
+    
+}
+
+- (void)containingScrollViewDidEndDragging:(UIScrollView *)containingScrollView
+{
+    CGFloat minOffsetToTriggerRefresh = 25.0f;
+    
+    NSLog(@"%.2f",containingScrollView.contentOffset.x);
+    
+    NSLog(@"%.2f",self.scroll.contentSize.width);
+    
+    if (containingScrollView.contentOffset.x <= -50)
+    {
+        
+        UIView *view = [[UIView alloc]initWithFrame:CGRectMake(-50 , 7, 100, 150)];
+        
+        UIActivityIndicatorView *acc = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        acc.hidesWhenStopped = YES;
+        [view addSubview:acc];
+        
+        [acc setFrame:CGRectMake(view.center.x - 25, view.center.y - 25, 50, 50)];
+        
+        [view setBackgroundColor:[UIColor clearColor]];
+        
+        [self.scroll addSubview:view];
+        
+        [acc startAnimating];
+        
+        [UIView animateWithDuration: 0.3
+         
+                              delay: 0.0
+         
+                            options: UIViewAnimationOptionCurveEaseOut
+         
+                         animations:^{
+                             
+                             [containingScrollView setContentInset:UIEdgeInsetsMake(0, 100, 0, 0)];
+                             
+                         }
+                         completion:nil];
+        //[containingScrollView setContentInset:UIEdgeInsetsMake(0, 100, 0, 0)];
+        
+        
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSLog(@"Started");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                
+                //Do whatever you want.
+                
+                NSLog(@"Refreshing");
+                
+               [NSThread sleepForTimeInterval:3.0];
+                
+                NSLog(@"refresh end");
+                
+                [UIView animateWithDuration: 0.3
+                
+                                      delay: 0.0
+                
+                                    options: UIViewAnimationOptionCurveEaseIn
+                
+                                 animations:^{
+                
+                                     [containingScrollView setContentInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+                
+                                 }
+                                                completion:nil];
+            });
+            
+        });
+        
+    }
+}
 
 //The event handling method
 - (void)handleSingleTap:(UITapGestureRecognizer *)recognizer {
